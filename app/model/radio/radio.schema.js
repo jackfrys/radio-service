@@ -3,9 +3,9 @@ var radioSchema = mongoose.Schema({
     name: String,
     channel: Number,
     tracks: [{
-        name: String,
+        title: String,
         artist: String,
-        itunes: String
+        trackId: String
     }]
 }, {collection: "Station"});
 module.exports = radioSchema;

@@ -1,6 +1,15 @@
 var mongoose = require("mongoose");
 var radioSchema = require("./radio.schema");
 var db = require("../database");
-var pageModel = mongoose.model("RadioModel", radioSchema);
+var radioModel = mongoose.model("RadioModel", radioSchema);
 
-module.exports = pageModel;
+radioModel.tracks = function (channel) {
+    return radioModel.find({channel: channel})
+};
+
+radioModel.createListing = function (name, channel, tracks) {
+    var listing = {name:name, _id:channel, tracks: tracks};
+    return radioModel.findByIdAndUpdate(channel, {$set:listing}, {upsert:true});
+};
+
+module.exports = radioModel;

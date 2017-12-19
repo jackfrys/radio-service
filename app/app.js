@@ -1,2 +1,2 @@
 require("./model/database");
-require("./services/radio.service");
+require("./service/radio.service");
