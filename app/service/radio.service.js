@@ -12,7 +12,12 @@ app.get("/api/tracks/:cid", function (req, res) {
 app.get("/api/update/:cid", function (req, res) {
     request("http://www.dogstarradio.com/search_playlist.php?artist=&title=&channel=" + req.params.cid + "&month=&date=&shour=&sampm=&stz=&ehour=&eampm=", function (error, result, body) {
         var html = new parser(body);
-        var table = html.findAll("table")[1].findAll("tr");
+        var tables = html.findAll("table");
+        if (tables.length < 2) {
+            res.sendStatus(400);
+            return;
+        }
+        var table = tables[1].findAll("tr");
         var songs = [];
         for (var s in table) {
             var song = table[s];
