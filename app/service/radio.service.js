@@ -71,12 +71,17 @@ function getAppleMusicData(song, callback) {
     request(url, function (error, result, body) {
         var u = url;
         if (body.length > 0) {
-            var results = JSON.parse(body).results;
-            if (results.length > 0) {
-                var re = results[0];
-                song.trackId = re.trackId;
-                song.title = re.trackName;
-                song.artist = re.artistName;
+            try {
+                var results = JSON.parse(body).results;
+
+                if (results.length > 0) {
+                    var re = results[0];
+                    song.trackId = re.trackId;
+                    song.title = re.trackName;
+                    song.artist = re.artistName;
+                }
+            } catch (e) {
+                res.send(u);
             }
         }
         callback(song);
