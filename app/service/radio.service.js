@@ -14,7 +14,7 @@ app.get("/api/update/:cid", function (req, res) {
         var html = new parser(body);
         var tables = html.findAll("table");
         if (tables.length < 2) {
-            res.sendStatus(400);
+            res.json({error:"no songs in webpage"});
             return;
         }
         var table = tables[1].findAll("tr");
@@ -27,8 +27,8 @@ app.get("/api/update/:cid", function (req, res) {
                 songs.push({artist:artist, title:title});
             }
         }
-        if (songs == null || songs.length == 0) {
-            res.sendStatus(400);
+        if (songs.length == 0) {
+            res.json({error:"song list was empty"});
         }
         songs.splice(-1,1);
 
@@ -69,6 +69,7 @@ function getAppleMusicData(song, callback) {
     var url = "https://itunes.apple.com/search?term=" + term + "+" + artist + "&entity=song";
 
     request(url, function (error, result, body) {
+        var u = url;
         if (body.length > 0) {
             var results = JSON.parse(body).results;
             if (results.length > 0) {
