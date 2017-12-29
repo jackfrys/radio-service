@@ -87,3 +87,22 @@ function getAppleMusicData(song, callback) {
         callback(song);
     })
 }
+
+app.get("/api/station-titles", function (req, res) {
+    request("http://www.dogstarradio.com/search_playlist.php", function (error, result, body) {
+        var html = new parser(body);
+        var titles = html.findAll("table")[0].findAll("tr")[3].findAll("select")[0].findAll("option");
+        var listing = {};
+        var head = titles[1];
+        for (var t in titles) {
+            if (t < titles.length - 1) {
+                var title = head.contents[0]._text;
+                var ts = title.split(" - ");
+                listing[parseInt(ts[0])] = ts[1];
+                head = head.contents[1];
+            }
+        }
+
+        res.json(listing);
+    })
+});
