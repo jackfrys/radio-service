@@ -91,7 +91,11 @@ function getAppleMusicData(song, callback) {
 app.get("/api/station-titles", function (req, res) {
     request("http://www.dogstarradio.com/search_playlist.php", function (error, result, body) {
         var html = new parser(body);
-        var titles = html.findAll("table")[0].findAll("tr")[3].findAll("select")[0].findAll("option");
+        var tables = html.findAll("table");
+        if (tables.length == 0) {
+            res.json({error:"site is down"})
+        }
+        var titles = tables[0].findAll("tr")[3].findAll("select")[0].findAll("option");
         var listing = {};
         var head = titles[1];
         for (var t in titles) {
