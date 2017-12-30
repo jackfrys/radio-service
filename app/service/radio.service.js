@@ -43,7 +43,7 @@ app.get("/api/update/:cid", function (req, res) {
                         res.json(filtered);
                     });
                 } else {
-                    radioModel.findByIdAndUpdate(d[0].id, {channel:req.params.cid, name:"station", tracks:filtered}).then(function () {
+                    radioModel.findByIdAndUpdate(d[0].id, {channel:req.params.cid, tracks:filtered}).then(function () {
                         res.json(filtered);
                     });
                 }
