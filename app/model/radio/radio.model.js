@@ -12,8 +12,9 @@ radioModel.createListing = function (name, channel, tracks) {
     return radioModel.findByIdAndUpdate(channel, {$set:listing}, {upsert:true});
 };
 
-radioModel.updateName = function (channel, name) {
-    return radioModel.findByIdAndUpdate(channel, {$set:{name:title}});
+radioModel.updateName = function (channel, title) {
+    //return radioModel.findByIdAndUpdate(channel, {$set:{name:title}});
+    return radioModel.findOneAndUpdate({channel:channel}, {$set:{name:title}});
 };
 
 module.exports = radioModel;

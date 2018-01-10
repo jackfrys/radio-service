@@ -1,7 +1,9 @@
 var app = require("../../express");
 var radioModel = require("../model/radio/radio.model");
-var request = require("request");
 var parser = require("jssoup").default;
+
+var Promise = require('bluebird');
+var request = Promise.promisifyAll(require('request'));
 
 app.get("/api/tracks/:cid", function (req, res) {
     radioModel.tracks(req.params.cid).then(function (tracks) {
@@ -97,16 +99,27 @@ app.get("/api/station-titles", function (req, res) {
         }
         var titles = tables[0].findAll("tr")[3].findAll("select")[0].findAll("option");
         var listing = {};
+        var things = [];
         var head = titles[1];
         for (var t in titles) {
             if (t < titles.length - 1) {
                 var title = head.contents[0]._text;
                 var ts = title.split(" - ");
-                listing[parseInt(ts[0])] = ts[1];
+                var channel = parseInt(ts[0]);
+                listing[channel] = ts[1];
+                things.push({number:channel, name:ts[1]});
+                radioModel.updateName(channel, ts[1]);
                 head = head.contents[1];
             }
         }
-
-        res.json(listing);
+        updateAllStationNames(things).then(function () {
+            res.json(listing);
+        });
     })
 });
+
+function updateAllStationNames(feedsToFetch) {
+    return Promise.map(feedsToFetch, function(feed){
+        return radioModel.updateName(feed.number, feed.name);
+    })
+}
