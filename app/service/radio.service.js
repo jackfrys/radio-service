@@ -16,7 +16,7 @@ app.get("/api/update/:cid", function (req, res) {
         var html = new parser(body);
         var tables = html.findAll("table");
         if (tables.length < 2) {
-            res.json({error:"no songs in webpage"});
+            res.json({error: "no songs in webpage"});
             return;
         }
         var table = tables[1].findAll("tr");
@@ -26,26 +26,29 @@ app.get("/api/update/:cid", function (req, res) {
             if (s > 2) {
                 var artist = song.findAll("td")[1].getText()
                 var title = song.findAll("td")[2].getText()
-                songs.push({artist:artist, title:title});
+                songs.push({artist: artist, title: title});
             }
         }
         if (songs.length == 0) {
-            res.json({error:"song list was empty"});
+            res.json({error: "song list was empty"});
         }
-        songs.splice(-1,1);
+        songs.splice(-1, 1);
 
         getAppleMusicAllSongs(0, songs, function (songs) {
             var filtered = songs.filter(function (song) {
                 return song.title != "null" && song.hasOwnProperty("trackId");
             });
             // radioModel.createListing("station", req.params.cid, filtered);
-            radioModel.find({channel:req.params.cid}).then(function (d) {
+            radioModel.find({channel: req.params.cid}).then(function (d) {
                 if (d.length === 0) {
-                    radioModel.create({channel:req.params.cid, name:"station", tracks:filtered}).then(function () {
+                    radioModel.create({channel: req.params.cid, name: "station", tracks: filtered}).then(function () {
                         res.json(filtered);
                     });
                 } else {
-                    radioModel.findByIdAndUpdate(d[0].id, {channel:req.params.cid, tracks:filtered}).then(function () {
+                    radioModel.findByIdAndUpdate(d[0].id, {
+                        channel: req.params.cid,
+                        tracks: filtered
+                    }).then(function () {
                         res.json(filtered);
                     });
                 }
@@ -95,7 +98,7 @@ app.get("/api/station-titles", function (req, res) {
         var html = new parser(body);
         var tables = html.findAll("table");
         if (tables.length == 0) {
-            res.json({error:"site is down"})
+            res.json({error: "site is down"})
         }
         var titles = tables[0].findAll("tr")[3].findAll("select")[0].findAll("option");
         var listing = {};
@@ -107,7 +110,7 @@ app.get("/api/station-titles", function (req, res) {
                 var ts = title.split(" - ");
                 var channel = parseInt(ts[0]);
                 listing[channel] = ts[1];
-                things.push({number:channel, name:ts[1]});
+                things.push({number: channel, name: ts[1]});
                 radioModel.updateName(channel, ts[1]);
                 head = head.contents[1];
             }
@@ -119,7 +122,7 @@ app.get("/api/station-titles", function (req, res) {
 });
 
 function updateAllStationNames(feedsToFetch) {
-    return Promise.map(feedsToFetch, function(feed){
+    return Promise.map(feedsToFetch, function (feed) {
         return radioModel.updateName(feed.number, feed.name);
     })
 }
