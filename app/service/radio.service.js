@@ -3,7 +3,7 @@ var radioModel = require("../model/radio/radio.model");
 var parser = require("jssoup").default;
 
 var Promise = require('bluebird');
-var request = Promise.promisifyAll(require('request'));
+var request = require("request-promise");
 
 app.get("/api/tracks/:cid", function (req, res) {
     radioModel.tracks(req.params.cid).then(function (tracks) {
@@ -12,7 +12,7 @@ app.get("/api/tracks/:cid", function (req, res) {
 });
 
 app.get("/api/update/:cid", function (req, res) {
-    request("http://www.dogstarradio.com/search_playlist.php?artist=&title=&channel=" + req.params.cid + "&month=&date=&shour=&sampm=&stz=&ehour=&eampm=", function (error, result, body) {
+    request("http://www.dogstarradio.com/search_playlist.php?artist=&title=&channel=" + req.params.cid + "&month=&date=&shour=&sampm=&stz=&ehour=&eampm=").then(function (body) {
         var html = new parser(body);
         var tables = html.findAll("table");
         if (tables.length < 2) {
@@ -94,7 +94,7 @@ function getAppleMusicData(song, callback) {
 }
 
 app.get("/api/station-titles", function (req, res) {
-    request("http://www.dogstarradio.com/search_playlist.php", function (error, result, body) {
+    request("http://www.dogstarradio.com/search_playlist.php").then(function (body) {
         var html = new parser(body);
         var tables = html.findAll("table");
         if (tables.length == 0) {
