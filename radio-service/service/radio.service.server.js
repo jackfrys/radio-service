@@ -1,5 +1,5 @@
 var app = require("../../express");
-var radioModel = require("../model/radio/radio.model");
+var radioModel = require("../database/radio/radio.model.server");
 var parser = require("jssoup").default;
 
 var Promise = require('bluebird');

@@ -1,5 +1,5 @@
 var mongoose = require("mongoose");
-var radioSchema = require("./radio.schema");
+var radioSchema = require("./radio.schema.server");
 var db = require("../database");
 var radioModel = mongoose.model("RadioModel", radioSchema);
 
