@@ -34,7 +34,30 @@ app.get("/api/update/:cid", function (req, res) {
         }
         songs.splice(-1, 1);
 
-        getAppleMusicAllSongs(0, songs, function (songs) {
+        // getAppleMusicAllSongs(0, songs, function (songs) {
+        //     var filtered = songs.filter(function (song) {
+        //         return song.title != "null" && song.hasOwnProperty("trackId");
+        //     });
+        //     // radioModel.createListing("station", req.params.cid, filtered);
+        //     radioModel.find({channel: req.params.cid}).then(function (d) {
+        //         if (d.length === 0) {
+        //             radioModel.create({channel: req.params.cid, name: "station", tracks: filtered}).then(function () {
+        //                 res.json(filtered);
+        //             });
+        //         } else {
+        //             radioModel.findByIdAndUpdate(d[0].id, {
+        //                 channel: req.params.cid,
+        //                 tracks: filtered
+        //             }).then(function () {
+        //                 res.json(filtered);
+        //             });
+        //         }
+        //     });
+        // });
+
+        Promise.map(songs, function (song) {
+            return getAppleMusicData(song);
+        }).then(function () {
             var filtered = songs.filter(function (song) {
                 return song.title != "null" && song.hasOwnProperty("trackId");
             });
@@ -53,9 +76,15 @@ app.get("/api/update/:cid", function (req, res) {
                     });
                 }
             });
-        });
+        })
     })
 });
+
+function getAppleMusicAllSongsP(songs) {
+    Promise.map(songs, function (song) {
+        return getAppleMusicData(song);
+    })
+}
 
 function getAppleMusicAllSongs(songIndex, completed, callback) {
     if (songIndex == completed.length) {
@@ -68,12 +97,12 @@ function getAppleMusicAllSongs(songIndex, completed, callback) {
     });
 }
 
-function getAppleMusicData(song, callback) {
+function getAppleMusicData(song) {
     var term = song.title.replace(" ", "+");
     var artist = song.artist.replace(" ", "+");
     var url = "https://itunes.apple.com/search?term=" + term + "+" + artist + "&entity=song";
 
-    request(url).then(function (body) {
+    return request(url).then(function (body) {
         if (body.length > 0) {
             try {
                 var results = JSON.parse(body).results;
@@ -88,9 +117,8 @@ function getAppleMusicData(song, callback) {
                 res.send(u);
             }
         }
-        callback(song);
     }).catch(function (error) {
-        res.json({error:error});
+        res.json({error: error});
     })
 }
 
