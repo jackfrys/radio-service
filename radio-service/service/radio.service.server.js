@@ -73,8 +73,7 @@ function getAppleMusicData(song, callback) {
     var artist = song.artist.replace(" ", "+");
     var url = "https://itunes.apple.com/search?term=" + term + "+" + artist + "&entity=song";
 
-    request(url, function (error, result, body) {
-        var u = url;
+    request(url).then(function (body) {
         if (body.length > 0) {
             try {
                 var results = JSON.parse(body).results;
@@ -90,6 +89,8 @@ function getAppleMusicData(song, callback) {
             }
         }
         callback(song);
+    }).catch(function (error) {
+        res.json({error:error});
     })
 }
 
