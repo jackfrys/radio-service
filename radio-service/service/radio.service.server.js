@@ -95,34 +95,24 @@ function getAppleMusicData(song, callback) {
 
 app.get("/api/station-titles", function (req, res) {
     request("http://www.dogstarradio.com/search_playlist.php").then(function (body) {
-        var html = new parser(body);
-        var tables = html.findAll("table");
+        var tables = new parser(body).findAll("table");
         if (tables.length == 0) {
             res.json({error: "site is down"})
         }
         var titles = tables[0].findAll("tr")[3].findAll("select")[0].findAll("option");
-        var listing = {};
-        var things = [];
+        var updates = [];
         var head = titles[1];
         for (var t in titles) {
             if (t < titles.length - 1) {
-                var title = head.contents[0]._text;
-                var ts = title.split(" - ");
+                var ts = head.contents[0]._text.split(" - ");
                 var channel = parseInt(ts[0]);
-                listing[channel] = ts[1];
-                things.push({number: channel, name: ts[1]});
-                radioModel.updateName(channel, ts[1]);
+                updates.push(radioModel.updateName(channel, ts[1]));
                 head = head.contents[1];
             }
         }
 
-        var prom = [];
-        for (var i in things) {
-            prom.push(radioModel.updateName(things[i].number, things[i].name));
-        }
-
-        Promise.all(prom).then(function () {
-            res.json(listing);
+        Promise.all(updates).then(function () {
+            res.sendStatus(200);
         })
     })
 });
