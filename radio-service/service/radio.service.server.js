@@ -38,7 +38,9 @@ app.get("/api/update/:cid", function (req, res) {
         Promise.map(songs, function (song) {
             return trackModel.findOne({title:song.title, artist:song.artist}).then(function (res) {
                 if (res) {
-                    song.trackId = res.trackId;
+                    if (res.hasOwnProperty("trackId")) {
+                        song.trackId = res.trackId;
+                    }
                 } else {
                     getAppleMusicData(song)
                 }
@@ -69,7 +71,7 @@ function getAppleMusicData(song) {
     var term = song.title.replace(" ", "+");
     var artist = song.artist.replace(" ", "+");
     var url = "https://itunes.apple.com/search?term=" + term + "+" + artist + "&entity=song";
-    var storage = {title:song.title, artist:song.artist};
+    var storage = {title:song.title, artist:song.artist, trackId:"null"};
 
     return request(url).then(function (body) {
         if (body.length > 0) {
@@ -83,13 +85,9 @@ function getAppleMusicData(song) {
                     song.artist = re.artistName;
 
                     storage.trackId = re.trackId;
-
-                    if (storage.hasOwnProperty("trackId")) {
-                        return trackModel.create(storage);
-                    }
                 }
 
-                return trackModel.find({});
+                return trackModel.create(storage);
             } catch (e) {
                 res.send(u);
             }
