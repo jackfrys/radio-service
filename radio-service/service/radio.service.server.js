@@ -1,5 +1,6 @@
 var app = require("../../express");
 var radioModel = require("../database/radio/radio.model.server");
+var trackModel = require("../database/radio/track.model.server");
 var parser = require("jssoup").default;
 
 var Promise = require('bluebird');
@@ -35,7 +36,13 @@ app.get("/api/update/:cid", function (req, res) {
         songs.splice(-1, 1);
 
         Promise.map(songs, function (song) {
-            return getAppleMusicData(song);
+            return trackModel.findOne({title:song.title, artist:song.artist}).then(function (res) {
+                if (res) {
+                    song.trackId = res.trackId;
+                } else {
+                    getAppleMusicData(song)
+                }
+            });
         }).then(function () {
             var filtered = songs.filter(function (song) {
                 return song.title != "null" && song.hasOwnProperty("trackId");
@@ -73,11 +80,19 @@ function getAppleMusicData(song) {
                     song.trackId = re.trackId;
                     song.title = re.trackName;
                     song.artist = re.artistName;
+
+                    if (song.hasOwnProperty("trackId")) {
+                        return trackModel.create(song);
+                    }
                 }
+
+                return trackModel.find({});
             } catch (e) {
                 res.send(u);
             }
         }
+    }).then(function () {
+        var h = "hi";
     }).catch(function (error) {
         res.json({error: error});
     })
