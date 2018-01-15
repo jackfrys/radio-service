@@ -105,8 +105,7 @@ app.get("/api/station-titles", function (req, res) {
         for (var t in titles) {
             if (t < titles.length - 1) {
                 var ts = head.contents[0]._text.split(" - ");
-                var channel = parseInt(ts[0]);
-                updates.push(radioModel.updateName(channel, ts[1]));
+                updates.push(radioModel.updateName(parseInt(ts[0]), ts[1]));
                 head = head.contents[1];
             }
         }
