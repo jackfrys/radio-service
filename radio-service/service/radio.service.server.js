@@ -115,14 +115,14 @@ app.get("/api/station-titles", function (req, res) {
                 head = head.contents[1];
             }
         }
-        updateAllStationNames(things).then(function () {
+
+        var prom = [];
+        for (var i in things) {
+            prom.push(radioModel.updateName(things[i].number, things[i].name));
+        }
+
+        Promise.all(prom).then(function () {
             res.json(listing);
-        });
+        })
     })
 });
-
-function updateAllStationNames(feedsToFetch) {
-    return Promise.map(feedsToFetch, function (feed) {
-        return radioModel.updateName(feed.number, feed.name);
-    })
-}
