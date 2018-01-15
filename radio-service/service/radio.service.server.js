@@ -69,6 +69,7 @@ function getAppleMusicData(song) {
     var term = song.title.replace(" ", "+");
     var artist = song.artist.replace(" ", "+");
     var url = "https://itunes.apple.com/search?term=" + term + "+" + artist + "&entity=song";
+    var storage = {title:song.title, artist:song.artist};
 
     return request(url).then(function (body) {
         if (body.length > 0) {
@@ -81,8 +82,10 @@ function getAppleMusicData(song) {
                     song.title = re.trackName;
                     song.artist = re.artistName;
 
-                    if (song.hasOwnProperty("trackId")) {
-                        return trackModel.create(song);
+                    storage.trackId = re.trackId;
+
+                    if (storage.hasOwnProperty("trackId")) {
+                        return trackModel.create(storage);
                     }
                 }
 
