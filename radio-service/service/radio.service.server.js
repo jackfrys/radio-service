@@ -22,8 +22,8 @@ app.get("/api/update/:cid", function (req, res) {
         var table = tables[1].findAll("tr");
         var songs = [];
         for (var s in table) {
-            var song = table[s];
             if (s > 2) {
+                var song = table[s];
                 var artist = song.findAll("td")[1].getText()
                 var title = song.findAll("td")[2].getText()
                 songs.push({artist: artist, title: title});
@@ -34,68 +34,29 @@ app.get("/api/update/:cid", function (req, res) {
         }
         songs.splice(-1, 1);
 
-        // getAppleMusicAllSongs(0, songs, function (songs) {
-        //     var filtered = songs.filter(function (song) {
-        //         return song.title != "null" && song.hasOwnProperty("trackId");
-        //     });
-        //     // radioModel.createListing("station", req.params.cid, filtered);
-        //     radioModel.find({channel: req.params.cid}).then(function (d) {
-        //         if (d.length === 0) {
-        //             radioModel.create({channel: req.params.cid, name: "station", tracks: filtered}).then(function () {
-        //                 res.json(filtered);
-        //             });
-        //         } else {
-        //             radioModel.findByIdAndUpdate(d[0].id, {
-        //                 channel: req.params.cid,
-        //                 tracks: filtered
-        //             }).then(function () {
-        //                 res.json(filtered);
-        //             });
-        //         }
-        //     });
-        // });
-
         Promise.map(songs, function (song) {
             return getAppleMusicData(song);
         }).then(function () {
             var filtered = songs.filter(function (song) {
                 return song.title != "null" && song.hasOwnProperty("trackId");
             });
-            // radioModel.createListing("station", req.params.cid, filtered);
             radioModel.find({channel: req.params.cid}).then(function (d) {
                 if (d.length === 0) {
                     radioModel.create({channel: req.params.cid, name: "station", tracks: filtered}).then(function () {
-                        res.json(filtered);
+                        res.sendStatus(200);
                     });
                 } else {
                     radioModel.findByIdAndUpdate(d[0].id, {
                         channel: req.params.cid,
                         tracks: filtered
                     }).then(function () {
-                        res.json(filtered);
+                        res.sendStatus(200);
                     });
                 }
             });
         })
     })
 });
-
-function getAppleMusicAllSongsP(songs) {
-    Promise.map(songs, function (song) {
-        return getAppleMusicData(song);
-    })
-}
-
-function getAppleMusicAllSongs(songIndex, completed, callback) {
-    if (songIndex == completed.length) {
-        callback(completed)
-        return;
-    }
-
-    getAppleMusicData(completed[songIndex], function (song) {
-        getAppleMusicAllSongs(songIndex + 1, completed, callback);
-    });
-}
 
 function getAppleMusicData(song) {
     var term = song.title.replace(" ", "+");
