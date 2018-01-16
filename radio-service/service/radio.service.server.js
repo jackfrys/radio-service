@@ -36,16 +36,16 @@ app.get("/api/update/:cid", function (req, res) {
         songs.splice(-1, 1);
 
         Promise.map(songs, function (song) {
-            return trackModel.findOne({title: song.title, artist: song.artist}).then(function (res) {
-                if (res) {
-                    song.trackId = res.trackId;
+            return trackModel.findOne({title: song.title, artist: song.artist}).then(function (resu) {
+                if (resu) {
+                    song.trackId = resu.trackId;
                 } else {
                     getAppleMusicData(song)
                 }
             });
         }).then(function () {
             var filtered = songs.filter(function (song) {
-                return song.title != "null" && song.hasOwnProperty("trackId");
+                return song.title != "null" && song.hasOwnProperty("trackId") && song.trackId != "null";
             });
             radioModel.find({channel: req.params.cid}).then(function (d) {
                 if (d.length === 0) {
