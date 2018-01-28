@@ -97,7 +97,7 @@ function getAppleMusicData(song) {
     })
 }
 
-app.get("/api/station-titles", function (req, res) {
+app.get("/api/update-station-titles", function (req, res) {
     request("http://www.dogstarradio.com/search_playlist.php").then(function (body) {
         var tables = new parser(body).findAll("table");
         if (tables.length == 0) {
@@ -118,4 +118,12 @@ app.get("/api/station-titles", function (req, res) {
             res.sendStatus(200);
         })
     })
+});
+
+app.get("/api/station-titles", function (req, res) {
+    radioModel.getStationTitles().then(function (data) {
+        res.json(data);
+    }).catch(function (err) {
+        res.send(err);
+    });
 });

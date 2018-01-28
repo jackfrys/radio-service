@@ -16,4 +16,8 @@ radioModel.updateName = function (channel, title) {
     return radioModel.findOneAndUpdate({channel: channel}, {$set: {name: title}});
 };
 
+radioModel.getStationTitles = function () {
+    return radioModel.find({}, {"name":1, "channel":1, "_id":0}).sort({channel:1});
+};
+
 module.exports = radioModel;
