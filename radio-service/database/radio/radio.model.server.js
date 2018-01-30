@@ -4,7 +4,7 @@ var db = require("../database");
 var radioModel = mongoose.model("RadioModel", radioSchema);
 
 radioModel.tracks = function (channel) {
-    return radioModel.find({channel: channel})
+    return radioModel.find({channel: channel}, {"title":1, "trackId":1, "artist":1, "_id":0})
 };
 
 radioModel.createListing = function (name, channel, tracks) {
