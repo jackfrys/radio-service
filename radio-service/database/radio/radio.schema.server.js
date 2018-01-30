@@ -7,6 +7,6 @@ var radioSchema = mongoose.Schema({
         artist: String,
         trackId: String
     }],
-    fetched: {type: Date, default: Date.now}
+    fetched: {type: Date, default: Date.now()}
 }, {collection: "Station"});
 module.exports = radioSchema;
